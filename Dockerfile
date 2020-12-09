@@ -16,6 +16,7 @@ RUN set -eux && \
             -u 1997 \
             -h /var/lib/zabbix/ \
         zabbix && \
+    mkdir -p /tmp_zabbix && \
     mkdir -p /etc/zabbix && \
     mkdir -p /etc/zabbix/zabbix_agentd.d && \
     mkdir -p /var/lib/zabbix && \
@@ -32,7 +33,8 @@ RUN set -eux && \
 
 ARG MAJOR_VERSION=5.0
 ARG ZBX_VERSION=${MAJOR_VERSION}.3
-ARG ZBX_SOURCES=https://git.zabbix.com/scm/zbx/zabbix.git
+#ARG ZBX_SOURCES=https://git.zabbix.com/scm/zbx/zabbix.git
+ARG ZBX_SOURCES=https://github.com/chuesgen/zabbix.git
 
 ENV TERM=xterm ZBX_VERSION=${ZBX_VERSION} ZBX_SOURCES=${ZBX_SOURCES}
 
@@ -72,6 +74,9 @@ RUN set -eux && \
             --enable-agent \
             --silent && \
     make -j"$(nproc)" -s && \
+
+    #cp /tmp/zabbix-${ZBX_VERSION}/src/go/bin/zabbix_agent2 /tmp_zabbix/zabbix_agent2 && \
+
     cp /tmp/zabbix-${ZBX_VERSION}/src/go/bin/zabbix_agent2 /usr/sbin/zabbix_agent2 && \
     cp /tmp/zabbix-${ZBX_VERSION}/src/zabbix_get/zabbix_get /usr/bin/zabbix_get && \
     cp /tmp/zabbix-${ZBX_VERSION}/src/zabbix_sender/zabbix_sender /usr/bin/zabbix_sender && \
@@ -96,5 +101,4 @@ VOLUME ["/var/lib/zabbix/enc"]
 #ENTRYPOINT ["/sbin/tini", "--", "/usr/bin/docker-entrypoint.sh"]
 
 USER 1997
-
 #CMD ["/usr/sbin/zabbix_agent2", "--foreground", "-c", "/etc/zabbix/zabbix_agent2.conf"]
